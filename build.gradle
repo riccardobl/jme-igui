@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+version= project.hasProperty('in_version') ? project.getProperty('in_version') : '-SNAPSHOT'
+group = "com.jme.igui"
+
+repositories {
+    jcenter()
+}
+
+
+project.ext {
+    jmeVer = "3.3.2-stable"
+}
+
+
+
+dependencies {
+    compileOnly "org.jmonkeyengine:jme3-core:$jmeVer"
+    
+    testCompile "org.jmonkeyengine:jme3-core:$jmeVer"
+    testCompile "org.jmonkeyengine:jme3-desktop:$jmeVer"
+    testCompile "org.jmonkeyengine:jme3-effects:$jmeVer"
+    testCompile "org.jmonkeyengine:jme3-plugins:$jmeVer"
+    testCompile "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
+}
+

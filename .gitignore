@@ -1,0 +1,10 @@
+*.class
+build
+.gradle
+bin
+*.dll
+*.so
+.vscode
+.project
+.classpath
+.settings
