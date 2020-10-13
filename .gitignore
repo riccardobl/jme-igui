@@ -8,3 +8,4 @@ bin
 .project
 .classpath
 .settings
+**/igui/font-awesome/all
