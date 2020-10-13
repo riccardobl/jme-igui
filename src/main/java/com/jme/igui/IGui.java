@@ -1,10 +1,11 @@
 package com.jme.igui;
 
-import com.jme3.font.BitmapFont;
+import java.util.function.BiFunction;
+
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 
-public interface IGui{
+public interface IGui extends IGuiInterface{
     public static final float SIZE_AUTO=Float.MIN_VALUE;
 
     /**
@@ -31,6 +32,7 @@ public interface IGui{
      * @param posX Y position on screen
      * @param posY Y position on screen
      */
+    public IGuiComponent text(String text, float posX, float posY,BiFunction<IGuiMouseEvent,Object,Boolean> onClick);
     public IGuiComponent text(String text, float posX, float posY);
 
     /**
@@ -40,7 +42,14 @@ public interface IGui{
     * @param posY Y position on screen
     * @param persistent If true the text will be drawn for every frame until .destroy() is called on the IGuiComponent instance.
     */
+    public IGuiComponent text(String text, float posX, float posY, boolean persistent,BiFunction<IGuiMouseEvent,Object,Boolean> onClick);
     public IGuiComponent text(String text, float posX, float posY, boolean persistent);
+
+
+    public float getTextLineWidth(String text);
+    public float getTextLineHeight(String text);
+    
+
 
     /**
     * Set if subsequential calls of image() should draw a flipped image
@@ -60,6 +69,7 @@ public interface IGui{
     * @param posX X position on the screen
     * @param posY Y position on the screen
     */
+    public IGuiComponent image(String img, float posX, float posY,BiFunction<IGuiMouseEvent,Object,Boolean> onClick);
     public IGuiComponent image(String img, float posX, float posY);
 
     /**
@@ -69,58 +79,54 @@ public interface IGui{
     * @param posY Y position on the screen
     * @param persistent If true the image will be drawn for every frame until .destroy() is called on the IGuiComponent instance.
     */
+    public IGuiComponent image(String img, float posX, float posY, boolean persistent,BiFunction<IGuiMouseEvent,Object,Boolean> onClick);
     public IGuiComponent image(String img, float posX, float posY, boolean persistent);
 
-    /**
-     * Clear the gui
-     * @param destroyAllPersistent if true persistent components will be destroyed as well
-     */
-    public void clear(boolean destroyAllPersistent);
 
     /**
      * Get current specified text color
      */
-    public ColorRGBA textColor();
+    public ColorRGBA getTextColor();
 
     /**
      * Get current specified text size
      */
-    public float textSize();
+    public float getTextSize();
 
     /**
      * Get current specified font
      */
-    public BitmapFont textFont();
+    public Object getTextFont();
 
     public IGui textRighToLeft(boolean v);
 
-    public boolean textRightToLeft();
+    public boolean isTextRightToLeft();
 
     public IGui textHAlign(String align);
 
     public IGui textVAlign(String align);
 
-    public String textHAlign();
+    public String getTextHAlign();
 
-    public String textVAlign();
+    public String getTextVAlign();
 
     public IGui imageHAlign(String align);
 
     public IGui imageVAlign(String align);
 
-    public String imageVAlign();
+    public String getImageVAlign();
 
-    public String imageHAlign();
+    public String getImageHAlign();
 
     /**
      * Get current specified image flip status
      */
-    public boolean imageFlip();
+    public boolean getImageFlip();
 
     /**
      * Get current specified image alpha status
      */
-    public boolean imageAlpha();
+    public boolean getImageAlpha();
 
     /**
      * Set an imageSize equivaled to the native size of the specified image for subsequential calls to image()
@@ -144,7 +150,7 @@ public interface IGui{
     /**
      * Get current specified image size
      */
-    public Vector2f imageSize();
+    public Vector2f getImageSize();
 
     /**
      * Scale images drawn with subsequential calls to image()
@@ -164,16 +170,13 @@ public interface IGui{
     /**
      * Get current specified image scale
      */
-    public Vector2f imageScale();
+    public Vector2f getImageScale();
 
-    /**
-     * Destroy the gui and all the components
-     */
-    public void destroy();
+
 
     public IGui zIndex(float v);
 
-    public float zIndex();
+    public float getZIndex();
 
     /**
     * Create new gui state and inherit settings from current state ( same as push(true))

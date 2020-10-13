@@ -1,11 +1,14 @@
 package com.jme.igui;
 
+import java.util.function.BiFunction;
+
 import com.jme3.scene.Spatial;
 
 public class IGuiComponent{
     private IGui gui;
-    Spatial sp;
-    boolean persistent;
+    public  Spatial sp;
+    public boolean persistent;
+    public BiFunction<IGuiMouseEvent,Object,Boolean> action;
 
     IGuiComponent(IGui gui){
         this.gui=gui;
