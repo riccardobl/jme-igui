@@ -12,7 +12,6 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
-import com.jme3.font.Rectangle;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Node;
@@ -28,24 +27,40 @@ public class IGuiAppState extends BaseAppState implements IGui{
     private final Collection<IGuiComponent> entries=new LinkedList<IGuiComponent>();
 
     private final Node root;
-    private AssetManager assetManager;
-    private BitmapFont textFont;
-    private boolean imageFlip=false,imageAlpha=true;
-    private float textSize;
-    private boolean textRightToLeft=false;
-
-    private final Vector2f imageSize=new Vector2f(SIZE_AUTO,SIZE_AUTO);
-    private final ColorRGBA textColor=new ColorRGBA();
-    private final Vector2f imageScale=new Vector2f(1,1);
+    private final AssetManager assetManager;
+    private final AppStateManager stateManager;
     private final Vector2f screenSize=new Vector2f(0,0);
 
-    private String textHAlign="left";
-    private String textVAlign="top";
-    private String imageHAlign="left";
-    private String imageVAlign="top";
-    private final AppStateManager stateManager;
+    private final LinkedList<IGuiState> stateStack=new LinkedList<IGuiState>();
+    private IGuiState currentState;
 
-    private float zIndex=0;
+
+    @Override
+    public IGui push(){
+        return push(true);
+    }
+
+    @Override
+    public IGui push(boolean inherit){
+        IGuiState oldState=currentState;
+        currentState= new IGuiState();
+        textFont("Interface/Fonts/Default.fnt");
+        textSize(currentState.textFont.getCharSet().getRenderedSize());
+        textColor(ColorRGBA.Gray);
+
+        if(inherit&&oldState!=null)currentState.inheritFrom(oldState);
+
+        stateStack.addFirst(currentState);
+        return this;
+    }
+
+    @Override
+    public IGui pop(){
+        if(stateStack.size()<=1)return this;
+        stateStack.removeFirst();
+        currentState=stateStack.getFirst();
+        return this;
+    }
 
     /**
      * Create a new gui that uses relative coordinates
@@ -72,10 +87,8 @@ public class IGuiAppState extends BaseAppState implements IGui{
         this.assetManager=assetManager;
         this.root=root;
         this.stateManager=stateManager;
-        textFont("Interface/Fonts/Default.fnt");
-        textSize(textFont.getCharSet().getRenderedSize());
-        textColor(ColorRGBA.Gray);
-        screenSize.set(w,h);
+        this.screenSize.set(w,h);
+        push();
     }
 
     @Override
@@ -126,47 +139,47 @@ public class IGuiAppState extends BaseAppState implements IGui{
     // Text
     @Override
     public IGui textColor(ColorRGBA color) {
-        this.textColor.set(color);
+        this.currentState.textColor.set(color);
         return this;
     }
 
     @Override
     public ColorRGBA textColor() {
-        return this.textColor;
+        return this.currentState.textColor;
     }
 
 
     @Override
     public IGui textRighToLeft(boolean v) {
-        this.textRightToLeft=v;
+        this.currentState.textRightToLeft=v;
         return this;
     }
 
     @Override
     public boolean textRightToLeft(){
-        return textRightToLeft;
+        return this.currentState.textRightToLeft;
     }
 
     @Override
     public IGui textSize(float scale) {
-        textSize=scale;
+        this.currentState.textSize=scale;
         return this;
     }
 
     @Override
     public float textSize() {
-        return textSize;
+        return this.currentState.textSize;
     }
 
     @Override
     public IGui textFont(String path) {
-        textFont=assetManager.loadFont(path);
+        this.currentState.textFont=assetManager.loadFont(path);
         return this;
     }
 
     @Override
     public BitmapFont textFont() {
-        return textFont;
+        return this.currentState.textFont;
     }
 
     @Override
@@ -176,54 +189,54 @@ public class IGuiAppState extends BaseAppState implements IGui{
 
     @Override
     public IGui textHAlign(String align){
-        this.textHAlign=align;
+        this.currentState.textHAlign=align;
         return this;
     }
 
     @Override
     public IGui textVAlign(String align){
-        this.textVAlign=align;
+        this.currentState.textVAlign=align;
         return this;
     }
 
     @Override
     public IGui imageHAlign(String align){
-        this.imageHAlign=align;
+        this.currentState.imageHAlign=align;
         return this;
     }
 
     @Override
     public IGui imageVAlign(String align){
-        this.imageVAlign=align;
+        this.currentState.imageVAlign=align;
         return this;
     }
 
 
     @Override
     public String textHAlign(){
-        return this.textHAlign;
+        return this.currentState.textHAlign;
     }
 
     @Override
     public String textVAlign(){
-        return this.textVAlign;
+        return this.currentState.textVAlign;
     }
 
 
     @Override
     public String imageHAlign(){
-        return this.imageHAlign;
+        return this.currentState.imageHAlign;
     }
 
     @Override
     public String imageVAlign(){
-        return this.imageVAlign;
+        return this.currentState.imageVAlign;
     }
 
     @Override
     public IGuiComponent text(String text, float posX, float posY, boolean persistent) {
-        BitmapText btext=new BitmapText(textFont,textRightToLeft);
-        btext.setSize(toReal(textSize));
+        BitmapText btext=new BitmapText(this.currentState.textFont,this.currentState.textRightToLeft);
+        btext.setSize(toReal(this.currentState.textSize));
         btext.setText(text);
         
 
@@ -233,7 +246,7 @@ public class IGuiAppState extends BaseAppState implements IGui{
         float x=toReal(posX,true);
         float y=toReal(posY,false);
 
-        switch(textVAlign){
+        switch(this.currentState.textVAlign){
             case "bottom":
                 y+=lh;
                 break;
@@ -242,7 +255,7 @@ public class IGuiAppState extends BaseAppState implements IGui{
                 y+=lh/2f;
         }
 
-        switch(textHAlign){
+        switch(this.currentState.textHAlign){
             case "right":
                 x-=lw;
                 break;
@@ -252,8 +265,8 @@ public class IGuiAppState extends BaseAppState implements IGui{
         }
 
 
-        btext.setLocalTranslation(x,y,zIndex);
-        btext.setColor(textColor.clone());
+        btext.setLocalTranslation(x,y,this.currentState.zIndex);
+        btext.setColor(this.currentState.textColor.clone());
         root.attachChild(btext);
         IGuiComponent tx=new IGuiComponent(this);
         tx.sp=btext;
@@ -266,24 +279,24 @@ public class IGuiAppState extends BaseAppState implements IGui{
 
     @Override
     public IGui imageFlip(boolean v) {
-        this.imageFlip=v;
+        this.currentState.imageFlip=v;
         return this;
     }
 
     @Override
     public boolean imageFlip() {
-        return imageFlip;
+        return this.currentState.imageFlip;
     }
 
     @Override
     public IGui imageAlpha(boolean v) {
-        this.imageAlpha=v;
+        this.currentState.imageAlpha=v;
         return this;
     }
 
     @Override
     public boolean imageAlpha() {
-        return imageAlpha;
+        return this.currentState.imageAlpha;
     }
 
     @Override
@@ -291,48 +304,48 @@ public class IGuiAppState extends BaseAppState implements IGui{
         TextureKey key=new TextureKey(image,true);
         Texture tx=assetManager.loadTexture(key);
         Image img=tx.getImage();
-        imageSize.set(toVirtual(img.getWidth(),true),toVirtual(img.getHeight(),false));
+        this.currentState.imageSize.set(toVirtual(img.getWidth(),true),toVirtual(img.getHeight(),false));
         return this;
     }
 
     @Override
     public IGui imageSize(float w, float h) {
-        imageSize.set(w,h);
+        this.currentState.imageSize.set(w,h);
         return this;
     }
 
     @Override
     public IGui imageSize(Vector2f size) {
-        imageSize.set(size);
+        this.currentState.imageSize.set(size);
         return this;
     }
 
     @Override
     public Vector2f imageSize() {
-        return imageSize;
+        return this.currentState.imageSize;
     }
 
     @Override
     public IGui imageScale(float s) {
-        imageScale.set(s,s);
+        this.currentState.imageScale.set(s,s);
         return this;
     }
 
     @Override
     public IGui imageScale(float x, float y) {
-        imageScale.set(x,y);
+        this.currentState.imageScale.set(x,y);
         return this;
     }
 
     @Override
     public IGui imageScale(Vector2f s) {
-        imageScale.set(s);
+        this.currentState.imageScale.set(s);
         return this;
     }
 
     @Override
     public Vector2f imageScale() {
-        return imageScale;
+        return this.currentState.imageScale;
     }
 
     @Override
@@ -345,12 +358,12 @@ public class IGuiAppState extends BaseAppState implements IGui{
         TextureKey key=new TextureKey(img,true);
         Texture2D txx=(Texture2D)assetManager.loadTexture(key);
 
-        float imgW=imageSize.x;
-        float imgH=imageSize.y;
+        float imgW=this.currentState.imageSize.x;
+        float imgH=this.currentState.imageSize.y;
         imgW=toReal(imgW,true);
         imgH=toReal(imgH,false);
         
-        if(imgW == SIZE_AUTO && imgH == SIZE_AUTO) imageSize.set(txx.getImage().getWidth(),txx.getImage().getHeight());
+        if(imgW == SIZE_AUTO && imgH == SIZE_AUTO) this.currentState.imageSize.set(txx.getImage().getWidth(),txx.getImage().getHeight());
         else{
             if(imgW == SIZE_AUTO){
                 float r=(float)txx.getImage().getWidth() / txx.getImage().getHeight();
@@ -361,14 +374,14 @@ public class IGuiAppState extends BaseAppState implements IGui{
             }
         }
 
-        imgW*= imageScale.x;
-        imgH*= imageScale.y;
+        imgW*= this.currentState.imageScale.x;
+        imgH*= this.currentState.imageScale.y;
 
         float x=toReal(posX,true);
         float y=toReal(posY,false);
 
 
-        switch(imageVAlign){
+        switch(this.currentState.imageVAlign){
             case "top":
                 y-=imgH;
                 break;
@@ -379,7 +392,7 @@ public class IGuiAppState extends BaseAppState implements IGui{
                 y-=imgH/2f;
         }
 
-        switch(imageHAlign){
+        switch(this.currentState.imageHAlign){
             case "right":
                 x-=imgW;
                 break;
@@ -388,9 +401,9 @@ public class IGuiAppState extends BaseAppState implements IGui{
                 x-=imgW/2f;
         }
 
-        Picture p=new Picture(img,imageFlip);
-        p.setTexture(assetManager,txx,imageAlpha);
-        p.getLocalTranslation().z=zIndex;
+        Picture p=new Picture(img,this.currentState.imageFlip);
+        p.setTexture(assetManager,txx,this.currentState.imageAlpha);
+        p.getLocalTranslation().z=this.currentState.zIndex;
         p.setPosition(x,y);
         p.setWidth(imgW );
         p.setHeight(imgH);
@@ -404,11 +417,11 @@ public class IGuiAppState extends BaseAppState implements IGui{
     }
 
     public float zIndex(){
-        return zIndex;
+        return this.currentState.zIndex;
     }
 
     public IGui zIndex(float v){
-        zIndex=v;
+        this.currentState.zIndex=v;
         return this;
     }
 

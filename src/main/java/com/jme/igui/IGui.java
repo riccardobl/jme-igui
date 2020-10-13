@@ -92,26 +92,25 @@ public interface IGui{
      */
     public BitmapFont textFont();
 
-    
     public IGui textRighToLeft(boolean v);
 
     public boolean textRightToLeft();
 
-
     public IGui textHAlign(String align);
+
     public IGui textVAlign(String align);
-    
+
     public String textHAlign();
+
     public String textVAlign();
 
     public IGui imageHAlign(String align);
+
     public IGui imageVAlign(String align);
 
     public String imageVAlign();
+
     public String imageHAlign();
-
-
-    
 
     /**
      * Get current specified image flip status
@@ -173,8 +172,23 @@ public interface IGui{
     public void destroy();
 
     public IGui zIndex(float v);
+
     public float zIndex();
 
-   
+    /**
+    * Create new gui state and inherit settings from current state ( same as push(true))
+    */
+    public IGui push();
 
+    /**
+     * Create new gui state
+     * @param inherit if true inherit settings from current state
+     * @return
+     */
+    public IGui push(boolean inherit);
+
+    /**
+     * Restore previous gui state
+     */
+    public IGui pop();
 }

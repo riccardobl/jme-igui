@@ -21,7 +21,8 @@ public class IGuiTest extends SimpleApplication{
     
     @Override
     public void simpleUpdate(float tpf){
-        gui.zIndex(0);
+        gui.push(false);
+        
         gui.textSize(0.02f);
         gui.textColor(ColorRGBA.White);
         gui.textHAlign("left");
@@ -44,13 +45,16 @@ public class IGuiTest extends SimpleApplication{
         gui.imageScale(0.5f);
 
         gui.image("igui/goldmonkey_head.png", .5f, .5f);
+        gui.pop();
 
+        gui.push(false);
         gui.imageSize(IGui.SIZE_AUTO,1f);
-        gui.imageScale(1f);
         gui.imageHAlign("center");
         gui.imageVAlign("center");
         gui.zIndex(-1);
         gui.image("igui/wall.jpg", .5f, .5f);
+        gui.pop();
+
     }    
 
     public static void main(String[] args) {
