@@ -2,17 +2,25 @@
 package com.jme.igui;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.font.BitmapCharacterSet;
+import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.InputManager;
 import com.jme3.input.MouseInput;
@@ -27,6 +35,11 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.FontMetrics;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Simple minimalistic imediate GUI 
@@ -42,18 +55,18 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
     private final LinkedList<IGuiState> stateStack=new LinkedList<IGuiState>();
     private IGuiState currentState;
 
-    private final  List<IGuiComponent> componentsUnderMouse=new LinkedList<IGuiComponent> ();
+    private final List<IGuiComponent> componentsUnderMouse=new LinkedList<IGuiComponent>();
     private final List<IGuiMouseEvent> mouseEventsQueue=new LinkedList<IGuiMouseEvent>();
 
-    private final  String mouseMapping[]={
-        "_igui_MouseLeft",
-        "_igui_MouseRight"
-    };
+    private final String mouseMapping[]={"_igui_MouseLeft","_igui_MouseRight"};
+
+    private final TTFConverter ttfConverter=new TTFConverter();
 
 
     public static IGui newRelative(AssetManager assetManager, AppStateManager sm, Node root, int screenW, int screenH) {
         return newRelative(assetManager,sm,null,root,screenW,screenH);
     }
+
     /**
      * Create a new gui that uses relative coordinates
      * All the positions and sizes used in this gui should be relative to the specified screenW and screenH
@@ -65,7 +78,7 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
         return ig;
     }
 
-    public static IGui newAbsolute(AssetManager assetManager, AppStateManager sm,  Node root) {
+    public static IGui newAbsolute(AssetManager assetManager, AppStateManager sm, Node root) {
         return newAbsolute(assetManager,sm,null,root);
     }
 
@@ -79,17 +92,16 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
     }
 
     private final InputManager inputManager;
+
     IGuiAppState(AssetManager assetManager,AppStateManager stateManager,InputManager inputManager,Node root,int w,int h){
         this.assetManager=assetManager;
         this.root=root;
         this.stateManager=stateManager;
         this.screenSize.set(w,h);
         this.inputManager=inputManager;
-    
+
         push();
     }
-
-
 
     @Override
     public IGui push() {
@@ -118,69 +130,67 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
         return this;
     }
 
-
     @Override
     protected void initialize(Application app) {
-        this.inputManager.addMapping(this.mouseMapping[0], new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        this.inputManager.addMapping(this.mouseMapping[1], new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        this.inputManager.addMapping(this.mouseMapping[0],new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        this.inputManager.addMapping(this.mouseMapping[1],new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         this.inputManager.addListener(this,mouseMapping);
     }
 
     @Override
     protected void cleanup(Application app) {
-        for(String m:this.mouseMapping)this.inputManager.deleteMapping(m);
+        for(String m:this.mouseMapping)
+            this.inputManager.deleteMapping(m);
         this.inputManager.removeListener(this);
     }
 
-
-
     @Override
     public void render(RenderManager rm) {
-        if(inputManager==null)return;
+        if(inputManager == null) return;
 
         Vector2f mousePos=inputManager.getCursorPosition();
         float x=mousePos.x;
         float y=mousePos.y;
-        
+
         for(IGuiComponent c:this.entries){
-            if(c.action==null)continue;
+            if(c.action == null) continue;
             Spatial sp=c.getSpatial();
             BoundingBox spbox=(BoundingBox)sp.getWorldBound();
             float xex=spbox.getXExtent();
             float yex=spbox.getYExtent();
             if(sp instanceof BitmapText){
-                yex=((BitmapText)sp).getLineHeight()/2f;
+                yex=((BitmapText)sp).getLineHeight() / 2f;
             }
-            float bx=spbox.getCenter().x-xex;
-            float by=spbox.getCenter().y-yex;
-            float bx2=spbox.getCenter().x+xex;
-            float by2=spbox.getCenter().y+yex;
-            if(x>bx&&x<bx2&&y>by&&y<by2)componentsUnderMouse.add(c);
-            else   c.action.apply(IGuiMouseEvent.MOUSE_OUT,null);            
+            float bx=spbox.getCenter().x - xex;
+            float by=spbox.getCenter().y - yex;
+            float bx2=spbox.getCenter().x + xex;
+            float by2=spbox.getCenter().y + yex;
+            if(x > bx && x < bx2 && y > by && y < by2) componentsUnderMouse.add(c);
+            else c.action.apply(IGuiMouseEvent.MOUSE_OUT,null);
         }
 
-        componentsUnderMouse.sort((a,b)->{
+        componentsUnderMouse.sort((a, b) -> {
             float z1=a.sp.getWorldTranslation().z;
             float z2=b.sp.getWorldTranslation().z;
-            if(z1>z2)return -1;
-            if(z2>z1)return 1;
+            if(z1 > z2) return -1;
+            if(z2 > z1) return 1;
             return 0;
         });
 
         for(IGuiComponent c:componentsUnderMouse){
             boolean consumed=c.action.apply(IGuiMouseEvent.MOUSE_IN,null);
-            if(consumed)break;
+            if(consumed) break;
         }
 
         for(IGuiMouseEvent e:this.mouseEventsQueue){
-            if(e==IGuiMouseEvent.MOUSE_RELEASED_LEFT||e==IGuiMouseEvent.MOUSE_RELEASED_RIGHT){
+            if(e == IGuiMouseEvent.MOUSE_RELEASED_LEFT || e == IGuiMouseEvent.MOUSE_RELEASED_RIGHT){
                 for(IGuiComponent c:entries){
-                    if( c.action!=null)c.action.apply(e,null);
+                    if(c.action != null) c.action.apply(e,null);
                 }
             }else{
                 for(IGuiComponent c:componentsUnderMouse){
                     boolean consumed=c.action.apply(e,null);
-                    if(consumed)break;
+                    if(consumed) break;
                 }
             }
         }
@@ -204,6 +214,9 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
                 t.sp.removeFromParent();
                 entries_i.remove();
             }
+        }
+        if(destroyAllPersistent){
+            ttfConverter.clearCache();
         }
     }
 
@@ -278,14 +291,31 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
     }
 
     @Override
+    public IGui textFontStyle(String v) {
+        this.currentState.fontStyle=v;
+        return this;
+    }
+
+    @Override
     public IGui textFont(String path) {
-        this.currentState.textFont=assetManager.loadFont(path);
+        if(path.endsWith(".ttf")){ 
+            this.currentState.textFont=null;
+            this.currentState.textTTFFont=path;            
+        }else{
+            this.currentState.textFont=assetManager.loadFont(path);
+            this.currentState.textTTFFont=null;
+        }
         return this;
     }
 
     @Override
     public Object getTextFont() {
-        return this.currentState.textFont;
+        if(this.currentState.textFont!=null)return this.currentState.textFont;
+        else{
+            float realFontSize=toRealSize(this.currentState.textSize);
+            String fontPath=this.currentState.textTTFFont;
+            return this.ttfConverter.convertTTF(assetManager, fontPath, this.currentState.fontStyle, realFontSize);
+        }
     }
 
 
@@ -349,10 +379,17 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
         return text(text,posX,posY,persistent,null);
     }
 
-    public BitmapText getBitmapText(String text ){
-        BitmapText fake=new BitmapText(this.currentState.textFont,this.currentState.textRightToLeft);
+    public BitmapText getBitmapText(String text) {
+        BitmapFont font=this.currentState.textFont;
+        if(font == null){
+            float realFontSize=toRealSize(this.currentState.textSize);
+            String fontPath=this.currentState.textTTFFont;
+            font=ttfConverter.convertTTF(assetManager,fontPath,this.currentState.fontStyle,realFontSize);
+        }         
+
+        BitmapText fake=new BitmapText(font,this.currentState.textRightToLeft);
         fake.setText("A"); 
-        BitmapText btext=new BitmapText(this.currentState.textFont,this.currentState.textRightToLeft){
+        BitmapText btext=new BitmapText(font,this.currentState.textRightToLeft){
             @Override
             public float getLineHeight() {
                float v=super.getLineHeight();
@@ -479,6 +516,17 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
     }
 
     @Override
+    public IGui imageColor(ColorRGBA color){
+        this.currentState.imageColor.set(color);
+        return this;
+    }
+
+    @Override
+    public ColorRGBA getImageColor(){
+        return this.currentState.imageColor;
+    }
+
+    @Override
     public IGuiComponent image(String img, float posX, float posY) {
         return image(img,posX,posY,false,null);
     }
@@ -548,6 +596,7 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
         p.setPosition(x,y);
         p.setWidth(imgW);
         p.setHeight(imgH);
+        p.getMaterial().setColor("Color", this.currentState.imageColor);
         root.attachChild(p);
 
         IGuiComponent tx=new IGuiComponent(this);
@@ -600,6 +649,9 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
     public float getTextLineHeight(String text) {
         return toVirtualSize(getBitmapText(text).getLineHeight(),false);
     }
+
+
+
 
 
 }

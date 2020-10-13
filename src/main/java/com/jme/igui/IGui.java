@@ -26,6 +26,9 @@ public interface IGui extends IGuiInterface{
     */
     public IGui textFont(String path);
 
+    public IGui textFontStyle(String style);
+
+
     /**
      * Draw text on screen. The text will be drawn only for 1 frame and then destroyed.
      * @param text The string to draw
@@ -194,4 +197,8 @@ public interface IGui extends IGuiInterface{
      * Restore previous gui state
      */
     public IGui pop();
+
+    public IGui imageColor(ColorRGBA color);
+    
+    public ColorRGBA getImageColor();
 }

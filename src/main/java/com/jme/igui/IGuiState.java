@@ -6,6 +6,8 @@ import com.jme3.math.Vector2f;
 
 public class IGuiState{
     BitmapFont textFont;
+    String textTTFFont;
+
     boolean imageFlip=false;
     boolean imageAlpha=true;
     float textSize;
@@ -14,11 +16,14 @@ public class IGuiState{
     final Vector2f imageSize=new Vector2f(IGui.SIZE_AUTO,IGui.SIZE_AUTO);
     final ColorRGBA textColor=new ColorRGBA();
     final Vector2f imageScale=new Vector2f(1,1);
+    final ColorRGBA imageColor=new ColorRGBA(1,1,1,1);
 
     String textHAlign="left";
     String textVAlign="top";
     String imageHAlign="left";
     String imageVAlign="top";
+
+    String fontStyle="regular";
 
     float zIndex=0;
 
@@ -36,5 +41,8 @@ public class IGuiState{
         imageAlpha=b.imageAlpha;
         imageFlip=b.imageFlip;
         textFont=b.textFont;        
+        fontStyle=b.fontStyle;        
+        textTTFFont=b.textTTFFont;
+        imageColor.set(b.imageColor);
     }
 }

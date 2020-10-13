@@ -18,7 +18,10 @@ project.ext {
 
 dependencies {
     compileOnly "org.jmonkeyengine:jme3-core:$jmeVer"
-    
+    compileOnly "org.jmonkeyengine:jme3-plugins:$jmeVer"
+    compileOnly "org.jmonkeyengine:jme3-desktop:$jmeVer"
+
+    testCompile "org.jmonkeyengine:jme3-plugins:$jmeVer"
     testCompile "org.jmonkeyengine:jme3-core:$jmeVer"
     testCompile "org.jmonkeyengine:jme3-desktop:$jmeVer"
     testCompile "org.jmonkeyengine:jme3-effects:$jmeVer"
