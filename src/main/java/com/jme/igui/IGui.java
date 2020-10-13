@@ -172,6 +172,9 @@ public interface IGui{
      */
     public void destroy();
 
+    public IGui zIndex(float v);
+    public float zIndex();
+
    
 
 }

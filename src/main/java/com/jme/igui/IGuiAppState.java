@@ -45,6 +45,8 @@ public class IGuiAppState extends BaseAppState implements IGui{
     private String imageVAlign="top";
     private final AppStateManager stateManager;
 
+    private float zIndex=0;
+
     /**
      * Create a new gui that uses relative coordinates
      * All the positions and sizes used in this gui should be relative to the specified screenW and screenH
@@ -223,6 +225,7 @@ public class IGuiAppState extends BaseAppState implements IGui{
         BitmapText btext=new BitmapText(textFont,textRightToLeft);
         btext.setSize(toReal(textSize));
         btext.setText(text);
+        
 
         float lw=btext.getLineWidth();
         float lh=btext.getLineHeight();
@@ -249,7 +252,7 @@ public class IGuiAppState extends BaseAppState implements IGui{
         }
 
 
-        btext.setLocalTranslation(x,y,0);
+        btext.setLocalTranslation(x,y,zIndex);
         btext.setColor(textColor.clone());
         root.attachChild(btext);
         IGuiComponent tx=new IGuiComponent(this);
@@ -350,10 +353,10 @@ public class IGuiAppState extends BaseAppState implements IGui{
         if(imgW == SIZE_AUTO && imgH == SIZE_AUTO) imageSize.set(txx.getImage().getWidth(),txx.getImage().getHeight());
         else{
             if(imgW == SIZE_AUTO){
-                float r=txx.getImage().getWidth() / txx.getImage().getHeight();
+                float r=(float)txx.getImage().getWidth() / txx.getImage().getHeight();
                 imgW=imgH * r;
             }else if(imgH == SIZE_AUTO){
-                float r=txx.getImage().getHeight() / txx.getImage().getWidth();
+                float r=(float)txx.getImage().getHeight() / txx.getImage().getWidth();
                 imgH=imgW * r;
             }
         }
@@ -387,6 +390,7 @@ public class IGuiAppState extends BaseAppState implements IGui{
 
         Picture p=new Picture(img,imageFlip);
         p.setTexture(assetManager,txx,imageAlpha);
+        p.getLocalTranslation().z=zIndex;
         p.setPosition(x,y);
         p.setWidth(imgW );
         p.setHeight(imgH);
@@ -397,6 +401,15 @@ public class IGuiAppState extends BaseAppState implements IGui{
         tx.persistent=persistent;
         entries.add(tx);
         return tx;
+    }
+
+    public float zIndex(){
+        return zIndex;
+    }
+
+    public IGui zIndex(float v){
+        zIndex=v;
+        return this;
     }
 
     @Override
