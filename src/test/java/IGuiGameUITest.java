@@ -89,7 +89,7 @@ public class IGuiGameUITest extends SimpleApplication{
         igui.imageVAlign("center");
         igui.imageSize(scale,scale);
 
-        for(int i=0;i < 2;i++) // make it darker.
+        for(int i=0;i < 4;i++) // make it darker.
             igui.image("igui/blackAlpha1.png",0.5f,0.5f);
 
         igui.textHAlign("right");
@@ -267,7 +267,7 @@ public class IGuiGameUITest extends SimpleApplication{
             }
 
             placeholder="~" + placeholder + "~";
-            igui.text("Chose an username",0.5f,0.7f);
+            igui.text("Choose an username",0.5f,0.7f);
 
             igui.push();
             if(userNameFieldSelected) igui.textColor(ColorRGBA.Green);
@@ -347,7 +347,7 @@ public class IGuiGameUITest extends SimpleApplication{
 
         // Draw background
         igui.push();
-        igui.imageSize(IGui.SIZE_AUTO,1);
+        igui.imageSize(1,1);
         igui.image("igui/bg.jpg",0,1,true);
         igui.pop();
 
@@ -378,6 +378,7 @@ public class IGuiGameUITest extends SimpleApplication{
     public static void main(String[] args) {
         AppSettings settings=new AppSettings(true);
         settings.setVSync(true);
+        settings.setGammaCorrection(true);
         IGuiGameUITest a=new IGuiGameUITest();
         a.setSettings(settings);
         a.start();
