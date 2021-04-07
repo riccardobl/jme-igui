@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'maven'
 }
 
 version= project.hasProperty('in_version') ? project.getProperty('in_version') : '-SNAPSHOT'
-group = "com.jme.igui"
+group = "wf.frk"
 
 repositories {
     mavenCentral()

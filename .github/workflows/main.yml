@@ -1,0 +1,64 @@
+name: Build
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
+  
+jobs:   
+  Build:
+    name: Build library
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v2     
+        with:
+          fetch-depth: 1
+      
+      - name: Prepare java environment
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8.x.x
+          architecture: x64  
+    
+          
+      - name: Build Library
+        run: |
+          export VERSION="`if [[ $GITHUB_REF == refs\/tags* ]]; then echo ${GITHUB_REF//refs\/tags\//}; fi`"
+          if [ "$VERSION" = "" ];
+          then
+            branch="`if [[ $GITHUB_REF == refs\/heads* ]]; then echo ${GITHUB_REF//refs\/heads\//}; fi`"
+            export VERSION="$branch-SNAPSHOT"
+          fi
+          mkdir -p dist/maven
+          gradle build install -Dmaven.repo.local="dist/maven" -Pin_version="$VERSION"
+          
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: maven
+          path: dist/maven
+          
+  Deploy:
+      needs: [Build]
+      if: github.event_name == 'release'
+      name: Deploy
+      runs-on: ubuntu-18.04
+      steps:   
+        - name: Clone the repo
+          uses: actions/checkout@v2
+          with:
+            fetch-depth: 1
+      
+        - name: Download maven artifacts
+          uses: actions/download-artifact@v2
+          with:
+            name: maven
+            path: dist/maven
+                      
+        - name: Deploy to github packages
+          if: github.event_name == 'release'
+          run: |
+            source .github/actions/tools/uploadToMaven.sh
+            uploadAllToMaven dist/maven/ https://maven.pkg.github.com/${GITHUB_REPOSITORY} token ${{ secrets.GITHUB_TOKEN }} 
+
