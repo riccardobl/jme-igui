@@ -22,11 +22,11 @@ dependencies {
     compileOnly "org.jmonkeyengine:jme3-plugins:$jmeVer"
     compileOnly "org.jmonkeyengine:jme3-desktop:$jmeVer"
 
-    testCompile "org.jmonkeyengine:jme3-plugins:$jmeVer"
-    testCompile "org.jmonkeyengine:jme3-core:$jmeVer"
-    testCompile "org.jmonkeyengine:jme3-desktop:$jmeVer"
-    testCompile "org.jmonkeyengine:jme3-effects:$jmeVer"
-    testCompile "org.jmonkeyengine:jme3-plugins:$jmeVer"
-    testCompile "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
+    testImplementation "org.jmonkeyengine:jme3-plugins:$jmeVer"
+    testImplementation "org.jmonkeyengine:jme3-core:$jmeVer"
+    testImplementation "org.jmonkeyengine:jme3-desktop:$jmeVer"
+    testImplementation "org.jmonkeyengine:jme3-effects:$jmeVer"
+    testImplementation "org.jmonkeyengine:jme3-plugins:$jmeVer"
+    testImplementation "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
 }
 

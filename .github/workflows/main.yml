@@ -31,7 +31,7 @@ jobs:
             export VERSION="$branch-SNAPSHOT"
           fi
           mkdir -p dist/maven
-          gradle build install -Dmaven.repo.local="dist/maven" -Pin_version="$VERSION"
+          ./gradlew build install -Dmaven.repo.local="dist/maven" -Pin_version="$VERSION"
           
       - name: Upload dist artifact
         uses: actions/upload-artifact@v2
