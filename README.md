@@ -14,11 +14,16 @@ That's all. Usage example in [src/test/java/IGuiTest.java](src/test/java/IGuiTes
 ## Jitpack coordinates
 
 ```gradle
-repositories {
-	maven { url 'https://jitpack.io' }
+plugins {
+    id "io.github.0ffz.github-packages" version "1.2.1"
 }
+
+repositories {
+    maven githubPackage.invoke("riccardobl")
+}
+
 dependencies {
-    implementation 'com.github.riccardobl:jme-igui:-SNAPSHOT'
+    implementation 'wf.frk:jme-igui:$VERSION'
 }
 ```
 

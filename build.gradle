@@ -1,20 +1,33 @@
 plugins {
     id 'java'
-    id 'maven'
+    id 'maven-publish'
 }
 
-version= project.hasProperty('in_version') ? project.getProperty('in_version') : '-SNAPSHOT'
-group = "wf.frk"
 
 repositories {
     mavenCentral()
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = "wf.frk"
+            artifactId = rootProject.name
+            version = project.hasProperty('in_version') ? project.getProperty('in_version') : '-SNAPSHOT'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = gradle.rootProject.projectDir.absolutePath + '/dist/maven'
+        }
+    }
+
+}
 
 project.ext {
     jmeVer = "3.3.2-stable"
 }
-
 
 
 dependencies {

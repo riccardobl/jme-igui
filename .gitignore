@@ -9,3 +9,4 @@ bin
 .classpath
 .settings
 **/igui/font-awesome/all
+dist
