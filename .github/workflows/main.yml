@@ -73,5 +73,6 @@ jobs:
             authId: jme-igui_github_action_a4ac19c4-80fb-430e-8fab-72ffdd6b2697
             authKey: ${{ secrets.JME_LIBRARY_AUTH_KEY }}
             token: ${{ secrets.GITHUB_TOKEN }}
+            platforms: "DESKTOP_WINDOWS, DESKTOP_LINUX" # ...?
             funding: true                     
                   
