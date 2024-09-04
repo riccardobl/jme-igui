@@ -53,7 +53,7 @@ jobs:
             fetch-depth: 1
       
         - name: Download maven artifacts
-          uses: actions/download-artifact@v2
+          uses: actions/download-artifact@v4.1.7
           with:
             name: maven
             path: dist/maven
