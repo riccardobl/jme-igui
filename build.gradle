@@ -26,7 +26,7 @@ publishing {
 }
 
 project.ext {
-    jmeVer = "3.3.2-stable"
+    jmeVer = "3.10.0-beta1"
 }
 
 
@@ -41,5 +41,9 @@ dependencies {
     testImplementation "org.jmonkeyengine:jme3-effects:$jmeVer"
     testImplementation "org.jmonkeyengine:jme3-plugins:$jmeVer"
     testImplementation "org.jmonkeyengine:jme3-lwjgl3:$jmeVer"
+}
+
+test {
+    failOnNoDiscoveredTests = false
 }
 
