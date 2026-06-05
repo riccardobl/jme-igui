@@ -11,15 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2     
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       
       - name: Prepare java environment
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 8.x.x
-          architecture: x64  
+          distribution: temurin
+          java-version: '21'
+          architecture: x64
     
           
       - name: Build Library
@@ -36,7 +37,7 @@ jobs:
           ./gradlew -Dmaven.repo.local="dist/maven" -Pin_version="$VERSION" publishMavenPublicationToMavenRepository
           
       - name: Upload dist artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: maven
           path: dist/maven
@@ -45,15 +46,15 @@ jobs:
       needs: [Build]
       if: github.event_name == 'release'
       name: Deploy
-      runs-on: ubuntu-18.04
+      runs-on: ubuntu-latest
       steps:   
         - name: Clone the repo
-          uses: actions/checkout@v2
+          uses: actions/checkout@v4
           with:
             fetch-depth: 1
       
         - name: Download maven artifacts
-          uses: actions/download-artifact@v4.1.7
+          uses: actions/download-artifact@v4
           with:
             name: maven
             path: dist/maven
