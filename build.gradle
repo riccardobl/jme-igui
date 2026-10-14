@@ -52,3 +52,12 @@ test {
     failOnNoDiscoveredTests = false
 }
 
+
+// CPU-only regression checks for the input-free GUI overloads.
+tasks.register('headlessRegressionTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.jme.igui.IGuiHeadlessRegressionTest'
+    jvmArgs '-Djava.awt.headless=true'
+}
+check.dependsOn headlessRegressionTest

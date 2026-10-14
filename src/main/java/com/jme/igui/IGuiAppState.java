@@ -132,6 +132,7 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
 
     @Override
     protected void initialize(Application app) {
+        if (inputManager == null) return;
         this.inputManager.addMapping(this.mouseMapping[0],new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         this.inputManager.addMapping(this.mouseMapping[1],new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         this.inputManager.addListener(this,mouseMapping);
@@ -139,6 +140,7 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
 
     @Override
     protected void cleanup(Application app) {
+        if (inputManager == null) return;
         for(String m:this.mouseMapping)
             this.inputManager.deleteMapping(m);
         this.inputManager.removeListener(this);
@@ -230,7 +232,7 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
         if(v == SIZE_AUTO) return v;
         if(screenSize.x == 0 && screenSize.y == 0) return v;
         float min=screenSize.x;
-        if(screenSize.y < min) screenSize.y=screenSize.y;
+        if(screenSize.y < min) min=screenSize.y;
         return v * min;
     }
 
@@ -252,7 +254,7 @@ public class IGuiAppState extends BaseAppState implements IGui,ActionListener{
         if(v == SIZE_AUTO) return v;
         if(screenSize.x == 0 && screenSize.y == 0) return v;
         float min=screenSize.x;
-        if(screenSize.y < min) screenSize.y=screenSize.y;
+        if(screenSize.y < min) min=screenSize.y;
         return v / min;
     }
 
